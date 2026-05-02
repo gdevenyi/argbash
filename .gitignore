@@ -7,3 +7,6 @@ tests/regressiontests/test.sh
 
 doc/_build
 resources/packages/build
+resources/argbash
+resources/argbash.1.gz
+resources/argbash.rst

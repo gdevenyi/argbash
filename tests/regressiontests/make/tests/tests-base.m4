@@ -262,6 +262,14 @@ ADD_TEST_BASH([test-wrapping-excl], [[
 	$(_test_onlypos)
 ]], [$(TESTDIR)/test-onlypos.m4])
 
+dnl Regression for upstream issue #205: wrapping a lib that declares ARG_LEFTOVERS
+dnl (or ARG_POSITIONAL_MULTI) must keep [@] in the generated wrapper's array forwarding.
+ADD_TEST_BASH([test-wrapleftovers], [[
+	! grep -q '@}' $<
+	$< hello | grep -q 'CMD=hello,LEFTOVERS=,CMDLINE=,'
+	$< hello foo bar baz | grep -q 'CMD=hello,LEFTOVERS=foo bar baz,CMDLINE=foo bar baz,'
+]], [$(TESTDIR)/test-wrapleftovers-lib.m4])
+
 ADD_SCRIPT([test-wrapping2])
 ADD_TEST_BASH([stability-wrapping], [[
 	diff -q $< $(word 2,$^)

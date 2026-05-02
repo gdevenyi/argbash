@@ -107,23 +107,70 @@ assert_m4_files_are_readable()
 do_stuff()
 {
 	local _pass_also="$_wrapped_defns" input prefix_len _ret
+	local _src_file="$1" _open_line="" _close_line="" _template_only="" _user_body=""
+	local _sentinel='__ARGBASH_USER_CONTENT_SENTINEL_DO_NOT_REMOVE__'
+
+	# In strip-none mode, isolate the user-code body (between the opening and
+	# closing 'needed because of Argbash' markers, exclusive) and route it
+	# around m4 entirely: replace it with a sentinel for the autom4te run, then
+	# substitute the verbatim body back in afterwards. This protects user bash
+	# code with bracket-imbalanced constructs (e.g. sed regexes like
+	# '\@<:@\@<:@^@:>@@:>@*\@:>@') from m4 quote-stripping.
+	if test "$_arg_strip" = none && test -r "$_src_file"
+	then
+		_open_line="$(grep -nFx '# @<:@ <-- needed because of Argbash' "$_src_file" | head -1 | cut -d: -f1)"
+		_close_line="$(grep -nFx '# @:>@ <-- needed because of Argbash' "$_src_file" | tail -1 | cut -d: -f1)"
+		if test -n "$_open_line" && test -n "$_close_line" && test "$_close_line" -gt "$_open_line"
+		then
+			_user_body="$(mktemp)"
+			_files_to_clean+=("$_user_body")
+			sed -n "$((_open_line + 1)),$((_close_line - 1))p" "$_src_file" > "$_user_body"
+			_template_only="$(mktemp)"
+			_files_to_clean+=("$_template_only")
+			{
+				head -n $((_open_line - 1)) "$_src_file"
+				printf '%s\n' "$_sentinel"
+				tail -n +$((_close_line + 1)) "$_src_file"
+			} > "$_template_only"
+			_src_file="$_template_only"
+		else
+			_user_body=""
+		fi
+	fi
+
 	test "$_arg_commented" = on && _pass_also="${_pass_also}m4_define([COMMENT_OUTPUT])"
 	_pass_also="${_pass_also}m4_define([_OUTPUT_TYPE], [[$3]])"
 	_pass_also="${_pass_also}$(define_file_metadata "$_arg_input" "$2")"
 	input="$(printf '%s\n' "$_pass_also" | cat - "$m4dir/argbash-lib.m4" "$output_m4")"
 	prefix_len=$(printf '%s\n' "$input" | wc -l)
-	input="$(printf '%s\n' "$input" | cat - "$1")"
-	run_autom4te "$input" 2> "$discard" \
-		| grep -v '^#\s*needed because of Argbash -->\s*$' \
-		| grep -v '^#\s*<-- needed because of Argbash\s*$'
-	_ret=$?
-	if test $_ret != 0
+	input="$(printf '%s\n' "$input" | cat - "$_src_file")"
+	if test -n "$_user_body"
+	then
+		run_autom4te "$input" 2> "$discard" \
+			| grep -v '^#\s*needed because of Argbash -->\s*$' \
+			| grep -v '^#\s*<-- needed because of Argbash\s*$' \
+			| awk -v s="$_sentinel" -v f="$_user_body" '
+				$0 == s {
+					while ((getline line < f) > 0) print line
+					close(f)
+					next
+				}
+				{ print }
+			'
+		_ret=${PIPESTATUS[0]}
+	else
+		run_autom4te "$input" 2> "$discard" \
+			| grep -v '^#\s*needed because of Argbash -->\s*$' \
+			| grep -v '^#\s*<-- needed because of Argbash\s*$'
+		_ret=${PIPESTATUS[0]}
+	fi
+	if test "$_ret" != 0
 	then
 		local errstr
 		errstr="$(run_autom4te "$input" 2>&1 > "$discard")"
 		interpret_error "$errstr" "$input" "$prefix_len" >&2
 		echo "Error during autom4te run, aborting!" >&2;
-		exit $_ret;
+		exit "$_ret";
 	fi
 	return "$_ret"
 }
