@@ -1,3 +1,10 @@
+2.12.0 (unreleased)
+-------------------
+
+Bugfixes:
+
+* Wrapper scripts forward the values of wrapped `ARG_LEFTOVERS` and `ARG_POSITIONAL_MULTI` arguments correctly - the `[@]` of the array expansion is no longer stripped (#205).
+
 2.11.0 (2025-05-23)
 -------------------
 
