@@ -48,7 +48,7 @@ Then read through this list of influences and/or alternatives!
 
   * Cons:
 
-    * Its use is `discouraged <http://bash.cumulonim.biz/BashFAQ(2f)035.html#getopts>`_ --- it seems to have some issues, you still need to deal with positional arguments by other means.
+    * Its use is `discouraged <https://mywiki.wooledge.org/BashFAQ/035#getopts>`_ --- it seems to have some issues, you still need to deal with positional arguments by other means.
 
 * ``getopts``: ``bash`` builtin for parsing command-line.
 
@@ -131,7 +131,7 @@ Then read through this list of high-quality learning resources!
   There are plenty of recipes and suggestions available.
   If you are a happy user of ``Argbash``, consider upvoting `the answer that promotes it <https://stackoverflow.com/a/38297066/592892>`_ since more people know ``Argbash``, the better for them.
 
-* Argument parsing for dummies: https://wiki.bash-hackers.org/scripting/posparams
+* Argument parsing for dummies: https://flokoe.github.io/bash-hackers-wiki/scripting/posparams/
   A short and nice-looking introduction with all basics covered (wiki).
 
 * The `POSIX conventions <http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html>`_ --- the reason why ``getopts`` are still mentioned in bash learning resources.
