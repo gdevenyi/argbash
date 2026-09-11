@@ -1,3 +1,10 @@
+2.12.0 (unreleased)
+-------------------
+
+Bugfixes:
+
+* `DEFINE_LOAD_LIBRARY` and `INCLUDE_PARSING_CODE` define the script directory themselves if `DEFINE_SCRIPT_DIR` hasn't been used before (#148).
+
 2.11.0 (2025-05-23)
 -------------------
 
