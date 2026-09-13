@@ -9,6 +9,7 @@ Bugfixes:
 * The generated code doesn't trigger the shellcheck SC2317 warning about unreachable `shift` for scripts that have only action arguments (#204).
 * `argbash` warns if the template lacks the guard lines past `ARGBASH_GO`, as square brackets in the user code get stripped in that case (#205).
 * `argbash` reports an error and exits with a non-zero status if the output file can't be written.
+* `make install` fails instead of silently installing an empty manpage if `rst2man` is not available.
 
 2.11.0 (2025-05-23)
 -------------------

@@ -160,7 +160,8 @@ argbash.rst: ../src/argbash.m4 $(ARGBASH_EXEC)
 man: $(MANPAGE)
 
 $(MANPAGE): argbash.rst argbash-defs.rst
-	rst2man $< | gzip > $@
+	rst2man $< > $(basename $@)
+	gzip -f $(basename $@)
 
 install: $(GENPARSE) $(A_INIT) $(ARGBASH_TO) $(COMPLETION) $(MANPAGE)
 	@echo Installing to prefix "'/$(PREFIX)' of root $(ROOT)"
