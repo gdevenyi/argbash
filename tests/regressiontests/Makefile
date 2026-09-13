@@ -98,6 +98,8 @@ TESTS += \
 	test-leftovers \
 	test-leading-code \
 	stability-leading-code \
+	test-load-library \
+	call-salone-implicit \
 	test-delim-space \
 	test-delim-equals \
 	test-delim-both \
@@ -144,6 +146,7 @@ TESTS_GEN += \
 	gen-test-misspelled \
 	gen-test-unmatched_bracket \
 	gen-test-badcall-multi \
+	gen-test-scriptdir-mismatch \
 	gen-test-init_name_dash \
 	gen-test-init_name_char \
 	gen-test-group-wrong \
@@ -177,6 +180,8 @@ SCRIPTS += \
 	$(TESTDIR)/test-infinity-mixed.sh \
 	$(TESTDIR)/test-leftovers.sh \
 	$(TESTDIR)/test-leading-code.sh \
+	$(TESTDIR)/test-load-library.sh \
+	$(TESTDIR)/call-salone-implicit.sh \
 	$(TESTDIR)/test-delim-space.sh \
 	$(TESTDIR)/test-delim-equals.sh \
 	$(TESTDIR)/test-delim-both.sh \
@@ -619,6 +624,19 @@ test-leading-code: $(TESTDIR)/test-leading-code.sh
 stability-leading-code: $(TESTDIR)/test-leading-code.sh $(TESTDIR)/test-leading-code2.sh
 	diff -q $< $(word 2,$^)
 	test -z "$(SHELLCHECK)" || $(SHELLCHECK) "$(TESTDIR)/test-leading-code.sh"
+test-load-library: $(TESTDIR)/test-load-library.sh
+	$< | grep -q 'LIB=yes,OPT_S=default,'
+	grep -q '^script_dir=' $<
+	test -z "$(SHELLCHECK)" || $(SHELLCHECK) "$(TESTDIR)/test-load-library.sh"
+call-salone-implicit: $(TESTDIR)/call-salone-implicit.sh
+	$(generic_regression_posix)
+	$(generic_regression_gnu_only)
+	grep -q '^my_dir=' $<
+	! grep -q '^script_dir=' $<
+	test -z "$(SHELLCHECK)" || $(SHELLCHECK) "$(TESTDIR)/call-salone-implicit.sh"
+gen-test-scriptdir-mismatch: $(TESTDIR)/gen-test-scriptdir-mismatch.m4 $(ARGBASH_BIN)
+	ERROR="you have asked for 'other_dir'" $(REVERSE) $(ARGBASH_EXEC) $< > /dev/null
+
 basic-docopt: $(TESTDIR)/basic.txt
 	grep -q "\[<pos-opt>\]" $<
 	grep -q "\[--opt_arg OPT_ARG\]" $<

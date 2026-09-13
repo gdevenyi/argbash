@@ -363,3 +363,19 @@ ADD_SCRIPT([test-leading-code2])
 ADD_TEST_BASH([stability-leading-code], [[
 	diff -q $< $(word 2,$^)
 ]], [$(TESTDIR)/test-leading-code2.sh], [$(TESTDIR)/test-leading-code.sh])
+dnl DEFINE_LOAD_LIBRARY defines the script directory itself if it hasn't been defined before.
+ADD_TEST_BASH([test-load-library], [[
+	$< | grep -q 'LIB=yes,OPT_S=default,'
+	grep -q '^script_dir=' $<
+]])
+
+dnl INCLUDE_PARSING_CODE defines the script directory itself (under the requested name) if it hasn't been defined before.
+ADD_TEST_BASH([call-salone-implicit], [[
+	$(generic_regression_posix)
+	$(generic_regression_gnu_only)
+	grep -q '^my_dir=' $<
+	! grep -q '^script_dir=' $<
+]])
+
+dnl A script directory variable name that differs from the one that has been defined is an error.
+ADD_GENTEST_BASH([scriptdir-mismatch], [you have asked for 'other_dir'])

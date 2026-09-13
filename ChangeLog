@@ -5,6 +5,7 @@ Bugfixes:
 
 * Code that precedes the first Argbash macro is passed through verbatim - square brackets in it are no longer stripped (#208).
 * Wrapper scripts forward the values of wrapped `ARG_LEFTOVERS` and `ARG_POSITIONAL_MULTI` arguments correctly - the `[@]` of the array expansion is no longer stripped (#205).
+* `DEFINE_LOAD_LIBRARY` and `INCLUDE_PARSING_CODE` define the script directory themselves if `DEFINE_SCRIPT_DIR` hasn't been used before (#148).
 
 2.11.0 (2025-05-23)
 -------------------
