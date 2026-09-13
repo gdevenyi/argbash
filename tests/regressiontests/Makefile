@@ -101,6 +101,7 @@ TESTS += \
 	test-load-library \
 	call-salone-implicit \
 	test-missing-guards \
+	test-unwritable-output \
 	test-delim-space \
 	test-delim-equals \
 	test-delim-both \
@@ -646,6 +647,9 @@ test-missing-guards: $(TESTDIR)/test-simple.sh $(TESTDIR)/gen-test-missing-guard
 	$(ARGBASH_EXEC) --type posix-script $(TESTDIR)/gen-test-missing-guards.m4 -o - 2>&1 > /dev/null | grep -q 'needed because of Argbash'
 	$(ARGBASH_EXEC) --type posix-script --strip all $(TESTDIR)/gen-test-missing-guards.m4 -o - 2>&1 > /dev/null | $(REVERSE) grep -q 'needed because of Argbash'
 	$(ARGBASH_EXEC) $(TESTDIR)/gen-test-misspelled.m4 -o - 2>&1 > /dev/null | $(REVERSE) grep -q 'needed because of Argbash'
+test-unwritable-output: $(TESTDIR)/test-simple.sh
+	ERROR="write the output" $(REVERSE) $(ARGBASH_EXEC) $(TESTDIR)/test-simple.m4 -o $(TESTDIR)/nonexistent-dir/out.sh
+	$(ARGBASH_EXEC) $(TESTDIR)/test-simple.m4 -o $(TESTDIR)/nonexistent-dir/out.sh 2> /dev/null; test $$? -eq 1
 	test -z "$(SHELLCHECK)" || $(SHELLCHECK) "$(TESTDIR)/test-simple.sh"
 basic-docopt: $(TESTDIR)/basic.txt
 	grep -q "\[<pos-opt>\]" $<
