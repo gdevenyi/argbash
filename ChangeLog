@@ -7,6 +7,7 @@ Bugfixes:
 * Wrapper scripts forward the values of wrapped `ARG_LEFTOVERS` and `ARG_POSITIONAL_MULTI` arguments correctly - the `[@]` of the array expansion is no longer stripped (#205).
 * `DEFINE_LOAD_LIBRARY` and `INCLUDE_PARSING_CODE` define the script directory themselves if `DEFINE_SCRIPT_DIR` hasn't been used before (#148).
 * The generated code doesn't trigger the shellcheck SC2317 warning about unreachable `shift` for scripts that have only action arguments (#204).
+* `argbash` warns if the template lacks the guard lines past `ARGBASH_GO`, as square brackets in the user code get stripped in that case (#205).
 
 2.11.0 (2025-05-23)
 -------------------

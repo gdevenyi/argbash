@@ -379,3 +379,13 @@ ADD_TEST_BASH([call-salone-implicit], [[
 
 dnl A script directory variable name that differs from the one that has been defined is an error.
 ADD_GENTEST_BASH([scriptdir-mismatch], [you have asked for 'other_dir'])
+dnl Templates that lack the guard lines past ARGBASH_GO are reported.
+ADD_TEST_BASH([test-missing-guards], [[
+	$(ARGBASH_EXEC) $(TESTDIR)/gen-test-missing-guards.m4 -o - 2>&1 > /dev/null | grep -q 'needed because of Argbash'
+	$(ARGBASH_EXEC) $(TESTDIR)/gen-test-missing-guards.m4 --strip user-content -o - 2>&1 > /dev/null | $(REVERSE) grep -q 'needed because of Argbash'
+	$(ARGBASH_EXEC) $(TESTDIR)/test-simple.m4 -o - 2>&1 > /dev/null | $(REVERSE) grep -q 'needed because of Argbash'
+	$(ARGBASH_EXEC) $(TESTDIR)/../../src/argbash-init.m4 -o - 2>&1 > /dev/null | $(REVERSE) grep -q 'needed because of Argbash'
+	$(ARGBASH_EXEC) --type posix-script $(TESTDIR)/gen-test-missing-guards.m4 -o - 2>&1 > /dev/null | grep -q 'needed because of Argbash'
+	$(ARGBASH_EXEC) --type posix-script --strip all $(TESTDIR)/gen-test-missing-guards.m4 -o - 2>&1 > /dev/null | $(REVERSE) grep -q 'needed because of Argbash'
+	$(ARGBASH_EXEC) $(TESTDIR)/gen-test-misspelled.m4 -o - 2>&1 > /dev/null | $(REVERSE) grep -q 'needed because of Argbash'
+]], [$(TESTDIR)/gen-test-missing-guards.m4], [$(TESTDIR)/test-simple.sh])
