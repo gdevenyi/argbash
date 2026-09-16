@@ -42,6 +42,7 @@ SCRIPTS = \
 	$(TESTDIR)/otherdir/test-onlypos.m4 \
 	$(TESTDIR)/test-wrapping2.sh \
 	$(TESTDIR)/test-leading-code2.sh \
+	$(TESTDIR)/test-body-brackets2.sh \
 	$(TESTDIR)/test-init_simple.sh \
 	$(TESTDIR)/test-init_simple.m4 \
 	$(TESTDIR)/test-init_simple-parsing.m4 \
@@ -102,6 +103,9 @@ TESTS += \
 	call-salone-implicit \
 	test-missing-guards \
 	test-unwritable-output \
+	test-body-brackets \
+	stability-body-brackets \
+	test-wrapping-body-brackets \
 	test-delim-space \
 	test-delim-equals \
 	test-delim-both \
@@ -184,6 +188,8 @@ SCRIPTS += \
 	$(TESTDIR)/test-leading-code.sh \
 	$(TESTDIR)/test-load-library.sh \
 	$(TESTDIR)/call-salone-implicit.sh \
+	$(TESTDIR)/test-body-brackets.sh \
+	$(TESTDIR)/test-wrapping-body-brackets.sh \
 	$(TESTDIR)/test-delim-space.sh \
 	$(TESTDIR)/test-delim-equals.sh \
 	$(TESTDIR)/test-delim-both.sh \
@@ -652,6 +658,18 @@ test-unwritable-output: $(TESTDIR)/test-simple.sh
 	ERROR="write the output" $(REVERSE) $(ARGBASH_EXEC) $(TESTDIR)/test-simple.m4 -o $(TESTDIR)/nonexistent-dir/out.sh
 	$(ARGBASH_EXEC) $(TESTDIR)/test-simple.m4 -o $(TESTDIR)/nonexistent-dir/out.sh 2> /dev/null; test $$? -eq 1
 	test -z "$(SHELLCHECK)" || $(SHELLCHECK) "$(TESTDIR)/test-simple.sh"
+test-body-brackets: $(TESTDIR)/test-body-brackets.sh
+	$< | grep -q 'VALUE=42,BRACKETS=preserved,OPT_S=default,'
+	$< -o foo | grep -q 'OPT_S=foo,'
+	test "$$(sed -n '/^# \[ <-- needed/,$$p' $< | sed '/^$$/d')" = "$$(sed -n '/^# \[ <-- needed/,$$p' $(TESTDIR)/test-body-brackets.m4 | sed '/^$$/d')"
+	test -z "$(SHELLCHECK)" || $(SHELLCHECK) "$(TESTDIR)/test-body-brackets.sh"
+stability-body-brackets: $(TESTDIR)/test-body-brackets.sh $(TESTDIR)/test-body-brackets2.sh
+	diff -q $< $(word 2,$^)
+	test -z "$(SHELLCHECK)" || $(SHELLCHECK) "$(TESTDIR)/test-body-brackets.sh"
+test-wrapping-body-brackets: $(TESTDIR)/test-wrapping-body-brackets.sh $(TESTDIR)/test-body-brackets.m4
+	$< --opt-arg foo | grep -q '^WRAPPED=--opt-arg foo,$$'
+	test "$$($< | wc -l)" = 1
+	test -z "$(SHELLCHECK)" || $(SHELLCHECK) "$(TESTDIR)/test-wrapping-body-brackets.sh"
 basic-docopt: $(TESTDIR)/basic.txt
 	grep -q "\[<pos-opt>\]" $<
 	grep -q "\[--opt_arg OPT_ARG\]" $<

@@ -394,3 +394,22 @@ ADD_TEST_BASH([test-unwritable-output], [[
 	ERROR="write the output" $(REVERSE) $(ARGBASH_EXEC) $(TESTDIR)/test-simple.m4 -o $(TESTDIR)/nonexistent-dir/out.sh
 	$(ARGBASH_EXEC) $(TESTDIR)/test-simple.m4 -o $(TESTDIR)/nonexistent-dir/out.sh 2> /dev/null; test $$? -eq 1
 ]], [], [$(TESTDIR)/test-simple.sh])
+
+
+dnl The script body past the guard has to be preserved verbatim, even if its square brackets don't match.
+dnl We have to escape \[ -> \@<:@ for sed
+ADD_TEST_BASH([test-body-brackets], [[
+	$< | grep -q 'VALUE=42,BRACKETS=preserved,OPT_S=default,'
+	$< -o foo | grep -q 'OPT_S=foo,'
+	test "$$(sed -n '/^# \@<:@ <-- needed/,$$p' $< | sed '/^$$/d')" = "$$(sed -n '/^# \@<:@ <-- needed/,$$p' $(TESTDIR)/test-body-brackets.m4 | sed '/^$$/d')"
+]])
+
+ADD_SCRIPT([test-body-brackets2])
+ADD_TEST_BASH([stability-body-brackets], [[
+	diff -q $< $(word 2,$^)
+]], [$(TESTDIR)/test-body-brackets2.sh], [$(TESTDIR)/test-body-brackets.sh])
+
+ADD_TEST_BASH([test-wrapping-body-brackets], [[
+	$< --opt-arg foo | grep -q '^WRAPPED=--opt-arg foo,$$'
+	test "$$($< | wc -l)" = 1
+]], [$(TESTDIR)/test-body-brackets.m4])

@@ -10,6 +10,8 @@ Bugfixes:
 * `argbash` warns if the template lacks the guard lines past `ARGBASH_GO`, as square brackets in the user code get stripped in that case (#205).
 * `argbash` reports an error and exits with a non-zero status if the output file can't be written.
 * `make install` fails instead of silently installing an empty manpage if `rst2man` is not available.
+* The script body past `ARGBASH_GO` is passed through verbatim even if its square brackets don't match, e.g. in regular expressions s.a. `[^]]`.
+* `ARGBASH_WRAP` works with scripts whose square brackets don't match in the leading code or in the body.
 
 2.11.0 (2025-05-23)
 -------------------
